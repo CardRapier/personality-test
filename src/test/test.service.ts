@@ -1,26 +1,42 @@
+import { dragon_test } from './dragon_test';
+import { TestDocument } from './schemas/test.schema';
 import { CreateTestDto } from './dto/create-test.dto';
-import { Injectable } from '@nestjs/common';
-import { UpdateTestDto } from './dto/update-test.dto';
-
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { Test } from './schemas/test.schema';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+//TODO: Validate IDs are object ids
 @Injectable()
 export class TestService {
-  create(createTestDto: CreateTestDto) {
-    return 'This action adds a new test';
+  constructor(@InjectModel(Test.name) private testModel: Model<TestDocument>) {}
+  async create(createTestDto: CreateTestDto) {
+    const exists = await this.findOneByName(createTestDto.name);
+    if (exists)
+      throw new BadRequestException(
+        `Test with this name already exists ${exists._id}`,
+      );
+    const createdTest = new this.testModel(createTestDto);
+    return await createdTest.save();
   }
 
-  findAll() {
-    return `This action returns all test`;
+  async findOne(id: string) {
+    return this.testModel.findById(id);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} test`;
+  async findOneByName(name: string) {
+    return this.testModel.findOne({ name });
   }
 
-  update(id: number, updateTestDto: UpdateTestDto) {
-    return `This action updates a #${id} test`;
+  async remove(id: string) {
+    return this.testModel.findByIdAndDelete(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} test`;
+  async calculateResult(id: number) {
+    return `This action calculates a #${id} test result`;
+  }
+
+  async createDragonTest() {
+    const dragonTest = new this.testModel(dragon_test);
+    return this.create(dragonTest);
   }
 }
