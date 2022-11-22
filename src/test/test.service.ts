@@ -13,7 +13,7 @@ export class TestService {
     const exists = await this.findOneByName(createTestDto.name);
     if (exists)
       throw new BadRequestException(
-        `Test with this name already exists ${exists._id}`,
+        `Test with this name already exists #${exists._id}`,
       );
     const createdTest = new this.testModel(createTestDto);
     return await createdTest.save();
@@ -31,8 +31,15 @@ export class TestService {
     return this.testModel.findByIdAndDelete(id);
   }
 
-  async calculateResult(id: number) {
-    return `This action calculates a #${id} test result`;
+  async calculateResult(id: string, answers: number[]) {
+    const test = await this.findOne(id);
+    if (!test) throw new BadRequestException(`Test with id ${id} not found`);
+    const answer = answers.reduce((a, b) => a + b, 0);
+    const questions = test.questions.length * 4;
+    const index = Number(answer / questions);
+    //TODO: Validate index is in range
+    const result = test.results[index];
+    return result;
   }
 
   async createDragonTest() {

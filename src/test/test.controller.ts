@@ -26,7 +26,7 @@ export class TestController {
   }
 
   @Get('getResult/:id')
-  async calculateResult(@Param('id') id: string) {
-    return this.testService.calculateResult(+id);
+  async calculateResult(@Param('id') id: string, @Body() answers: number[]) {
+    return this.testService.calculateResult(id, answers);
   }
 }
