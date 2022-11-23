@@ -1,6 +1,8 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Delete } from '@nestjs/common';
 import { TestService } from './test.service';
 import { CreateTestDto } from './dto/create-test.dto';
+import { AnswerTestDto } from './dto/answer-test.dto';
+import { IdParam } from 'src/common/decorators/id.decorator';
 
 @Controller('test')
 export class TestController {
@@ -12,21 +14,22 @@ export class TestController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  async findOne(@IdParam() id: string) {
     return this.testService.findOne(id);
   }
+
   @Post('createDragon')
   async createDragonTest() {
     return this.testService.createDragonTest();
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  async remove(@IdParam() id: string) {
     return this.testService.remove(id);
   }
 
-  @Get('getResult/:id')
-  async calculateResult(@Param('id') id: string, @Body() answers: number[]) {
-    return this.testService.calculateResult(id, answers);
+  @Post('result/:id')
+  async getResult(@IdParam() id: string, @Body() pointsDto: AnswerTestDto) {
+    return this.testService.getResult(id, pointsDto);
   }
 }

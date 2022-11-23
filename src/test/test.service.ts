@@ -5,7 +5,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { Test } from './schemas/test.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-//TODO: Validate IDs are object ids
+import { AnswerTestDto } from './dto/answer-test.dto';
 @Injectable()
 export class TestService {
   constructor(@InjectModel(Test.name) private testModel: Model<TestDocument>) {}
@@ -31,13 +31,13 @@ export class TestService {
     return this.testModel.findByIdAndDelete(id);
   }
 
-  async calculateResult(id: string, answers: number[]) {
+  async getResult(id: string, pointsDto: AnswerTestDto) {
+    const { points } = pointsDto;
     const test = await this.findOne(id);
     if (!test) throw new BadRequestException(`Test with id ${id} not found`);
-    const answer = answers.reduce((a, b) => a + b, 0);
-    const questions = test.questions.length * 4;
-    const index = Number(answer / questions);
-    //TODO: Validate index is in range
+    const totalPoints = points.reduce((a, b) => a + b, 0);
+    const questions = test.questions.length;
+    const index = Math.ceil(totalPoints / questions) - 1;
     const result = test.results[index];
     return result;
   }

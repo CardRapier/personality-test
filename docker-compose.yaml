@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  db:
+    image: mongo:latest
+    container_name: mongolin
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGODB_DATABASE: test
+    volumes:
+      - ./mongo:/data/db
